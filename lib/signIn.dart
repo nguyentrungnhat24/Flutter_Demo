@@ -25,151 +25,153 @@ class _LoginPageState extends State<LoginPage> {
         padding: EdgeInsets.fromLTRB(30, 0, 30, 0),
         constraints: BoxConstraints.expand(),
         color: Colors.white,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.end,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(0, 0, 0, 40),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(0, 0, 0, 40),
 
-              child: Center(
-                child: Container(
-                  padding: EdgeInsets.fromLTRB(0, 0, 0, 30),
-                  width: 120,
-                  height: 120,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.white,
-                  ),
-                  child: Image.asset(
-                    "assets/images/Group.png",
-                    width: 100,
-                    height: 100,
+                child: Center(
+                  child: Container(
+                    padding: EdgeInsets.fromLTRB(0, 0, 0, 30),
+                    width: 120,
+                    height: 120,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white,
+                    ),
+                    child: Image.asset(
+                      "assets/images/Group.png",
+                      width: 100,
+                      height: 100,
+                    ),
                   ),
                 ),
               ),
-            ),
-            Text(
-              "Loging",
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
-                fontSize: 30,
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(0, 0, 0, 20),
-              child: Text(
-                "Enter your emails and password",
+              Text(
+                "Loging",
                 style: TextStyle(
-                  fontWeight: FontWeight.normal,
-                  color: Colors.grey,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
                   fontSize: 30,
                 ),
               ),
-            ),
-
-            Padding(
-              padding: const EdgeInsets.fromLTRB(0, 0, 0, 40),
-              child: TextField(
-                style: TextStyle(fontSize: 18, color: Colors.black),
-                controller: _userController,
-                decoration: InputDecoration(
-                  labelText: "Email",
-                  errorText: _userInvalid ? _userErr : null,
-                  labelStyle: TextStyle(color: Colors.grey, fontSize: 15),
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(0, 0, 0, 40),
-              child: Stack(
-                alignment: AlignmentDirectional.centerEnd,
-                children: [
-                  TextField(
-                    style: TextStyle(fontSize: 18, color: Colors.black),
-                    controller: _passController,
-                    obscureText: !_showPass,
-                    decoration: InputDecoration(
-                      labelText: "Password",
-                      errorText: _passInvalid ? _passErr : null,
-                      labelStyle: TextStyle(color: Colors.grey, fontSize: 15),
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: onToggleShowPass,
-                    child: Icon(
-                      _showPass ? Icons.visibility_off : Icons.visibility,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Container(
-              alignment: AlignmentDirectional.centerEnd,
-              padding: EdgeInsets.fromLTRB(0, 0, 0, 20),
-              child: Text(
-                "Forgot Password",
-                style: TextStyle(fontSize: 14, color: Colors.grey),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(0, 0, 0, 5),
-              child: SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green, // 👈 màu nền
-                    foregroundColor: Colors.black, // 👈 màu chữ (text/icon)
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(8)),
-                    ),
-                  ),
-                  onPressed: onSignInClicked,
-                  child: Text(
-                    "Log In",
-                    style: TextStyle(color: Colors.white, fontSize: 16),
-                  ),
-                ),
-              ),
-            ),
-            Container(
-              alignment: AlignmentDirectional.center,
-              width: double.infinity,
-              height: 60,
-              child: Text.rich(
-                TextSpan(
-                  text: "Don't have an account?",
+              Padding(
+                padding: const EdgeInsets.fromLTRB(0, 0, 0, 20),
+                child: Text(
+                  "Enter your emails and password",
                   style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.normal,
+                    color: Colors.grey,
+                    fontSize: 30,
                   ),
+                ),
+              ),
+
+              Padding(
+                padding: const EdgeInsets.fromLTRB(0, 0, 0, 40),
+                child: TextField(
+                  style: TextStyle(fontSize: 18, color: Colors.black),
+                  controller: _userController,
+                  decoration: InputDecoration(
+                    labelText: "Email",
+                    errorText: _userInvalid ? _userErr : null,
+                    labelStyle: TextStyle(color: Colors.grey, fontSize: 15),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(0, 0, 0, 40),
+                child: Stack(
+                  alignment: AlignmentDirectional.centerEnd,
                   children: [
-                    TextSpan(
-                      text: "Sign up",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                        color: Colors.green,
+                    TextField(
+                      style: TextStyle(fontSize: 18, color: Colors.black),
+                      controller: _passController,
+                      obscureText: !_showPass,
+                      decoration: InputDecoration(
+                        labelText: "Password",
+                        errorText: _passInvalid ? _passErr : null,
+                        labelStyle: TextStyle(color: Colors.grey, fontSize: 15),
                       ),
-                      recognizer: TapGestureRecognizer()
-                        ..onTap = () {
-                          // Khi bấm vào "Sign up", nó chạy code ở đây
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => SignUpPage(),
-                            ),
-                          );
-                        },
+                    ),
+                    GestureDetector(
+                      onTap: onToggleShowPass,
+                      child: Icon(
+                        _showPass ? Icons.visibility_off : Icons.visibility,
+                      ),
                     ),
                   ],
                 ),
               ),
-            ),
-          ],
+              Container(
+                alignment: AlignmentDirectional.centerEnd,
+                padding: EdgeInsets.fromLTRB(0, 0, 0, 20),
+                child: Text(
+                  "Forgot Password",
+                  style: TextStyle(fontSize: 14, color: Colors.grey),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(0, 0, 0, 5),
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green, // 👈 màu nền
+                      foregroundColor: Colors.black, // 👈 màu chữ (text/icon)
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(8)),
+                      ),
+                    ),
+                    onPressed: onSignInClicked,
+                    child: Text(
+                      "Log In",
+                      style: TextStyle(color: Colors.white, fontSize: 16),
+                    ),
+                  ),
+                ),
+              ),
+              Container(
+                alignment: AlignmentDirectional.center,
+                width: double.infinity,
+                height: 60,
+                child: Text.rich(
+                  TextSpan(
+                    text: "Don't have an account?",
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    children: [
+                      TextSpan(
+                        text: "Sign up",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          color: Colors.green,
+                        ),
+                        recognizer: TapGestureRecognizer()
+                          ..onTap = () {
+                            // Khi bấm vào "Sign up", nó chạy code ở đây
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => SignUpPage(),
+                              ),
+                            );
+                          },
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
