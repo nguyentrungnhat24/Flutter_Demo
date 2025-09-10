@@ -1,5 +1,6 @@
-import 'package:fl_week01/ProductDetail.dart';
-import 'package:fl_week01/signUp.dart';
+import 'package:fl_week01/src/blocs/login_bloc.dart';
+import 'package:fl_week01/src/resources/ProductDetail.dart';
+import 'package:fl_week01/src/resources/signUp.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
@@ -9,17 +10,17 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  LoginBloc bloc = new LoginBloc();
+
   bool _showPass = false;
   TextEditingController _userController = new TextEditingController();
   TextEditingController _passController = new TextEditingController();
-  var _userErr = "Vui lòng nhập đúng định dạng email";
-  var _passErr =
-      "Vui lòng nhập mật khẩu có ít nhất 6 kí tự, chứa ít nhất 1 chữ hoa, 1 chữ thường và 1 số";
-  bool _userInvalid = false;
-  bool _passInvalid = false;
 
   @override
   Widget build(BuildContext context) {
+    double myHeight = MediaQuery.of(context).size.height;
+    double myWidth = MediaQuery.of(context).size.width;
+
     return Scaffold(
       body: Container(
         padding: EdgeInsets.fromLTRB(30, 0, 30, 0),
@@ -32,7 +33,6 @@ class _LoginPageState extends State<LoginPage> {
             children: [
               Padding(
                 padding: const EdgeInsets.fromLTRB(0, 0, 0, 40),
-
                 child: Center(
                   child: Container(
                     padding: EdgeInsets.fromLTRB(0, 0, 0, 30),
@@ -72,13 +72,18 @@ class _LoginPageState extends State<LoginPage> {
 
               Padding(
                 padding: const EdgeInsets.fromLTRB(0, 0, 0, 40),
-                child: TextField(
-                  style: TextStyle(fontSize: 18, color: Colors.black),
-                  controller: _userController,
-                  decoration: InputDecoration(
-                    labelText: "Email",
-                    errorText: _userInvalid ? _userErr : null,
-                    labelStyle: TextStyle(color: Colors.grey, fontSize: 15),
+                child: StreamBuilder(
+                  stream: bloc.userStream,
+                  builder: (context, snapshot) => TextField(
+                    style: TextStyle(fontSize: 18, color: Colors.black),
+                    controller: _userController,
+                    decoration: InputDecoration(
+                      labelText: "Email",
+                      errorText: snapshot.hasError
+                          ? snapshot.error.toString()
+                          : null,
+                      labelStyle: TextStyle(color: Colors.grey, fontSize: 15),
+                    ),
                   ),
                 ),
               ),
@@ -87,14 +92,22 @@ class _LoginPageState extends State<LoginPage> {
                 child: Stack(
                   alignment: AlignmentDirectional.centerEnd,
                   children: [
-                    TextField(
-                      style: TextStyle(fontSize: 18, color: Colors.black),
-                      controller: _passController,
-                      obscureText: !_showPass,
-                      decoration: InputDecoration(
-                        labelText: "Password",
-                        errorText: _passInvalid ? _passErr : null,
-                        labelStyle: TextStyle(color: Colors.grey, fontSize: 15),
+                    StreamBuilder(
+                      stream: bloc.passStream,
+                      builder: (context, snapshot) => TextField(
+                        style: TextStyle(fontSize: 18, color: Colors.black),
+                        controller: _passController,
+                        obscureText: !_showPass,
+                        decoration: InputDecoration(
+                          labelText: "Password",
+                          errorText: snapshot.hasError
+                              ? snapshot.error.toString()
+                              : null,
+                          labelStyle: TextStyle(
+                            color: Colors.grey,
+                            fontSize: 15,
+                          ),
+                        ),
                       ),
                     ),
                     GestureDetector(
@@ -184,21 +197,9 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void onSignInClicked() {
-    setState(() {
-      if (_userController.text.length < 12 ||
-          !_userController.text.contains("@gmail.com")) {
-        _userInvalid = true;
-      } else
-        _userInvalid = false;
-      if (!validatePassword(_passController.text)) {
-        _passInvalid = true;
-      } else
-        _passInvalid = false;
-
-      if (!_userInvalid && !_passInvalid) {
-        Navigator.push(context, MaterialPageRoute(builder: gotoProductDetail));
-      }
-    });
+    if (bloc.isValidInfo(_userController.text, _passController.text)) {
+      Navigator.push(context, MaterialPageRoute(builder: gotoProductDetail));
+    }
   }
 
   Widget gotoProductDetail(BuildContext context) {

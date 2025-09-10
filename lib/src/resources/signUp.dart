@@ -1,5 +1,5 @@
-import 'package:fl_week01/ProductDetail.dart';
-import 'package:fl_week01/signIn.dart';
+import 'package:fl_week01/src/resources/ProductDetail.dart';
+import 'package:fl_week01/src/resources/signIn.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 

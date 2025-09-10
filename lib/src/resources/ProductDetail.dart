@@ -1,5 +1,5 @@
-import 'package:fl_week01/signIn.dart';
-import 'package:fl_week01/signUp.dart';
+import 'package:fl_week01/src/resources/signIn.dart';
+import 'package:fl_week01/src/resources/signUp.dart';
 import 'package:flutter/material.dart';
 
 class ProductDetailPage extends StatefulWidget {
