@@ -1,8 +1,9 @@
 import 'package:fl_week01/src/blocs/login_bloc.dart';
-import 'package:fl_week01/src/resources/ProductDetail.dart';
+import 'package:fl_week01/src/resources/home_screen.dart';
 import 'package:fl_week01/src/resources/signUp.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -10,8 +11,6 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  LoginBloc bloc = new LoginBloc();
-
   bool _showPass = false;
   TextEditingController _userController = new TextEditingController();
   TextEditingController _passController = new TextEditingController();
@@ -51,7 +50,7 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
               Text(
-                "Loging",
+                "Login",
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   color: Colors.black,
@@ -69,56 +68,99 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
               ),
-
               Padding(
                 padding: const EdgeInsets.fromLTRB(0, 0, 0, 40),
-                child: StreamBuilder(
-                  stream: bloc.userStream,
-                  builder: (context, snapshot) => TextField(
-                    style: TextStyle(fontSize: 18, color: Colors.black),
-                    controller: _userController,
-                    decoration: InputDecoration(
-                      labelText: "Email",
-                      errorText: snapshot.hasError
-                          ? snapshot.error.toString()
-                          : null,
-                      labelStyle: TextStyle(color: Colors.grey, fontSize: 15),
-                    ),
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(0, 0, 0, 40),
-                child: Stack(
-                  alignment: AlignmentDirectional.centerEnd,
-                  children: [
-                    StreamBuilder(
-                      stream: bloc.passStream,
-                      builder: (context, snapshot) => TextField(
-                        style: TextStyle(fontSize: 18, color: Colors.black),
-                        controller: _passController,
-                        obscureText: !_showPass,
-                        decoration: InputDecoration(
-                          labelText: "Password",
-                          errorText: snapshot.hasError
-                              ? snapshot.error.toString()
-                              : null,
-                          labelStyle: TextStyle(
-                            color: Colors.grey,
-                            fontSize: 15,
+                child: BlocConsumer<LoginCubit, LoginState>(
+                  listener: (context, state) {
+                    if (state is LoginFailure) {
+                      ScaffoldMessenger.of(
+                        context,
+                      ).showSnackBar(SnackBar(content: Text(state.error)));
+                    }
+                    if (state is LoginSuccess) {
+                      // Nếu login thành công thì điều hướng sang HomePage
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (_) => const HomePage()),
+                      );
+                    }
+                  },
+                  builder: (context, state) {
+                    if (state is LoginLoading) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    return Column(
+                      children: [
+                        // Email
+                        TextField(
+                          style: TextStyle(fontSize: 18, color: Colors.black),
+                          controller: _userController,
+                          decoration: InputDecoration(
+                            labelText: "Email",
+                            errorText: state is LoginFailure ? 'sai' : null,
+                            labelStyle: TextStyle(
+                              color: Colors.grey,
+                              fontSize: 15,
+                            ),
                           ),
                         ),
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap: onToggleShowPass,
-                      child: Icon(
-                        _showPass ? Icons.visibility_off : Icons.visibility,
-                      ),
-                    ),
-                  ],
+                        SizedBox(height: myHeight * 0.03),
+                        // Password
+                        TextField(
+                          controller: _passController,
+                          obscureText: !_showPass,
+                          decoration: InputDecoration(
+                            labelText: "Password",
+                            errorText: state is LoginFailure
+                                ? state.error
+                                : null,
+                            suffixIcon: GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  _showPass = !_showPass;
+                                });
+                              },
+                              child: Icon(
+                                _showPass
+                                    ? Icons.visibility_off
+                                    : Icons.visibility,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 30),
+
+                        // Login Button
+                        SizedBox(
+                          width: double.infinity,
+                          height: 50,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.green,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                            onPressed: () {
+                              final email = _userController.text.trim();
+                              final pass = _passController.text.trim();
+                              context.read<LoginCubit>().login(email, pass);
+                            },
+                            child: const Text(
+                              "Log In",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
                 ),
               ),
+
               Container(
                 alignment: AlignmentDirectional.centerEnd,
                 padding: EdgeInsets.fromLTRB(0, 0, 0, 20),
@@ -127,27 +169,27 @@ class _LoginPageState extends State<LoginPage> {
                   style: TextStyle(fontSize: 14, color: Colors.grey),
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(0, 0, 0, 5),
-                child: SizedBox(
-                  width: double.infinity,
-                  height: 50,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green, // 👈 màu nền
-                      foregroundColor: Colors.black, // 👈 màu chữ (text/icon)
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(8)),
-                      ),
-                    ),
-                    onPressed: onSignInClicked,
-                    child: Text(
-                      "Log In",
-                      style: TextStyle(color: Colors.white, fontSize: 16),
-                    ),
-                  ),
-                ),
-              ),
+              // Padding(
+              //   padding: const EdgeInsets.fromLTRB(0, 0, 0, 5),
+              //   child: SizedBox(
+              //     width: double.infinity,
+              //     height: 50,
+              //     child: ElevatedButton(
+              //       style: ElevatedButton.styleFrom(
+              //         backgroundColor: Colors.green, // 👈 màu nền
+              //         foregroundColor: Colors.black, // 👈 màu chữ (text/icon)
+              //         shape: RoundedRectangleBorder(
+              //           borderRadius: BorderRadius.all(Radius.circular(8)),
+              //         ),
+              //       ),
+              //       onPressed: onSignInClicked,
+              //       child: Text(
+              //         "Log In",
+              //         style: TextStyle(color: Colors.white, fontSize: 16),
+              //       ),
+              //     ),
+              //   ),
+              // ),
               Container(
                 alignment: AlignmentDirectional.center,
                 width: double.infinity,
@@ -194,16 +236,6 @@ class _LoginPageState extends State<LoginPage> {
     setState(() {
       _showPass = !_showPass;
     });
-  }
-
-  void onSignInClicked() {
-    if (bloc.isValidInfo(_userController.text, _passController.text)) {
-      Navigator.push(context, MaterialPageRoute(builder: gotoProductDetail));
-    }
-  }
-
-  Widget gotoProductDetail(BuildContext context) {
-    return ProductDetailPage();
   }
 
   Widget gotoSignUp(BuildContext context) {
