@@ -1,3 +1,4 @@
+import 'package:fl_week01/src/blocs/homepage_bloc.dart';
 import 'package:fl_week01/src/blocs/login_bloc.dart';
 import 'package:fl_week01/src/resources/home_screen.dart';
 import 'package:fl_week01/src/resources/signUp.dart';
@@ -14,6 +15,36 @@ class _LoginPageState extends State<LoginPage> {
   bool _showPass = false;
   TextEditingController _userController = new TextEditingController();
   TextEditingController _passController = new TextEditingController();
+
+  // Biến để theo dõi trạng thái của nút
+  bool _isButtonEnabled = false;
+
+  @override
+  void dispose() {
+    // Dọn dẹp controller khi widget bị hủy
+    _userController.dispose();
+    _passController.dispose();
+    super.dispose();
+  }
+
+  // Hàm được gọi mỗi khi text thay đổi
+  void _updateButtonState() {
+    setState(() {
+      // Cập nhật trạng thái dựa trên text của cả 2 controller
+      _isButtonEnabled =
+          _userController.text.isNotEmpty && _passController.text.isNotEmpty;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _userController.removeListener(_updateButtonState);
+    _passController.removeListener(_updateButtonState);
+    // Thêm listener để lắng nghe sự thay đổi
+    _userController.addListener(_updateButtonState);
+    _passController.addListener(_updateButtonState);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -73,15 +104,20 @@ class _LoginPageState extends State<LoginPage> {
                 child: BlocConsumer<LoginCubit, LoginState>(
                   listener: (context, state) {
                     if (state is LoginFailure) {
-                      ScaffoldMessenger.of(
-                        context,
-                      ).showSnackBar(SnackBar(content: Text(state.error)));
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(state.generalError ?? '')),
+                      );
                     }
                     if (state is LoginSuccess) {
                       // Nếu login thành công thì điều hướng sang HomePage
                       Navigator.pushReplacement(
                         context,
-                        MaterialPageRoute(builder: (_) => const HomePage()),
+                        MaterialPageRoute(
+                          builder: (context) => BlocProvider(
+                            create: (context) => HomepageBloc(),
+                            child: const HomePage(),
+                          ),
+                        ),
                       );
                     }
                   },
@@ -97,7 +133,9 @@ class _LoginPageState extends State<LoginPage> {
                           controller: _userController,
                           decoration: InputDecoration(
                             labelText: "Email",
-                            errorText: state is LoginFailure ? 'sai' : null,
+                            errorText: state is LoginFailure
+                                ? state.emailError
+                                : null,
                             labelStyle: TextStyle(
                               color: Colors.grey,
                               fontSize: 15,
@@ -111,8 +149,12 @@ class _LoginPageState extends State<LoginPage> {
                           obscureText: !_showPass,
                           decoration: InputDecoration(
                             labelText: "Password",
+                            labelStyle: TextStyle(
+                              color: Colors.grey,
+                              fontSize: 15,
+                            ),
                             errorText: state is LoginFailure
-                                ? state.error
+                                ? state.passwordError
                                 : null,
                             suffixIcon: GestureDetector(
                               onTap: () {
@@ -136,16 +178,23 @@ class _LoginPageState extends State<LoginPage> {
                           height: 50,
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.green,
+                              backgroundColor: _isButtonEnabled
+                                  ? Colors.green
+                                  : Colors.grey, // 👈 màu nền
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8),
                               ),
                             ),
-                            onPressed: () {
-                              final email = _userController.text.trim();
-                              final pass = _passController.text.trim();
-                              context.read<LoginCubit>().login(email, pass);
-                            },
+                            onPressed: _isButtonEnabled
+                                ? () {
+                                    final email = _userController.text.trim();
+                                    final pass = _passController.text.trim();
+                                    context.read<LoginCubit>().login(
+                                      email,
+                                      pass,
+                                    );
+                                  }
+                                : null,
                             child: const Text(
                               "Log In",
                               style: TextStyle(
